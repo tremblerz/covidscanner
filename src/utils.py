@@ -5,6 +5,7 @@ import torchvision
 import torch
 from tensorboardX import SummaryWriter
 
+from sklearn import metrics
 
 def copy_source_code(path):
     if not os.path.isdir(path):
@@ -46,6 +47,13 @@ class LoggerUtils():
 
     def log_console(self, message):
         print(message)
+
+    def log_metrics(self, category, y_pred, y_true, iteration):
+        self.log_scalar(category + "/metrics/roc_auc", metrics.roc_auc_score(y_true, y_pred), iteration)
+        self.log_scalar(category + "/metrics/f1", metrics.f1_score(y_true, y_pred > 0.5), iteration)
+        self.log_scalar(category + "/metrics/precision", metrics.precision_score(y_true, y_pred > 0.5), iteration)
+        self.log_scalar(category + "/metrics/recall", metrics.recall_score(y_true, y_pred > 0.5), iteration)
+        self.log_scalar(category + "/metrics/auprc", metrics.average_precision_score(y_true, y_pred), iteration)
 
     def log_scalar(self, category, value, iteration):
         self.writer.add_scalar(category, value, iteration)

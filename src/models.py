@@ -16,7 +16,7 @@ class resnet18(nn.Module):
         super(resnet18, self).__init__()
         self.logits = config["logits"]
 
-        self.model = models.resnet18(pretrained=False)
+        self.model = models.resnet18(pretrained=config["pretrained"])
         num_ftrs = self.model.fc.in_features
         self.model.fc = nn.Sequential(nn.Flatten(),
                                       nn.Linear(num_ftrs, self.logits))
@@ -27,4 +27,4 @@ class resnet18(nn.Module):
     def forward(self, x):
         for i, l in enumerate(self.model):
             x = l(x)
-        return nn.functional.softmax(x)
+        return nn.functional.softmax(x, 1)

@@ -22,14 +22,15 @@ seed = 0
 torch.manual_seed(seed)
 np.random.seed(seed)
 
-model_name = "resnet18"
+counter = 1
+model_name = "resnet18_pretrained"
 total_epochs = 300
 gpu_devices = [1, 2, 3, 4, 5, 6, 7]
 num_gpus = len(gpu_devices)
 dataset = "covidnet_full"
 dataset_path = "../data/"
 img_size = 256
-experiment_name = "{}_{}_{}".format(dataset, img_size, model_name)
+experiment_name = "{}_{}_{}_{}".format(dataset, img_size, model_name, counter)
 results_path = "../experiments/" + experiment_name
 log_path = results_path + "/logs/"
 model_path = results_path + "/saved_models"
@@ -42,7 +43,7 @@ config = {"experiment_name": experiment_name, "dataset_path": dataset_path,
           "dataset": dataset, "test_batch_size": test_batch_size, "log_path": log_path,
           "model_path": model_path, "img_size": img_size, "split": split}
 
-hparams = {"logits": 2}
+hparams = {"logits": 2, "pretrained": True}
 
 if os.path.isdir(results_path):
     print("Experiment {} already present".format(experiment_name))

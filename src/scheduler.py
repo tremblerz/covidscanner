@@ -78,6 +78,7 @@ class Scheduler():
         self.model.eval()
         test_loss, pred_correct = 0, 0
         total = 0
+        all_predictions, all_labels = np.array([]),np.array([])
         os.mkdir("{}/{}".format(self.config["log_path"], self.epoch))
 
         with torch.no_grad():
@@ -86,8 +87,8 @@ class Scheduler():
                 labels = Variable(labels).to(self.device)
 
                 prediction = self.model(data)
-
-                print(prediction.argmax(dim=1).sum().item())
+                all_predictions = np.append(all_predictions, [prediction.detach().cpu().numpy()[:, 1]])
+                all_labels = np.append(all_labels, [labels.detach().cpu().numpy()])
 
                 test_loss += self.loss_fn(prediction, labels)
                 pred_correct += (prediction.argmax(dim=1) ==
@@ -96,6 +97,8 @@ class Scheduler():
 
         test_loss /= total
         pred_acc = pred_correct / total
+
+        self.logger.log_metrics("test/", all_predictions, all_labels, self.epoch)
 
         self.logger.log_scalar("test/loss", test_loss.item(), self.epoch)
         self.logger.log_scalar("test/pred_accuracy", pred_acc, self.epoch)
@@ -114,6 +117,8 @@ class Scheduler():
             self.optim.zero_grad()
 
             prediction = self.model(data)
+
+            # self.logger.log_metrics("train/", prediction, labels)
 
             loss = self.loss_fn(prediction, labels)
             pred_correct = (prediction.argmax(dim=1) == labels).sum().item()
